@@ -90,7 +90,8 @@ QByteArray mujserver::DataFromPacket (packet p)
 }
 void mujserver::StartRead ()
 {
-	QTcpSocket * socket=new QTcpSocket (QObject::sender ());
+	QTcpSocket * socket=new QTcpSocket (docasnysocket);
+	qDebug ("ctu data");
 	data=socket->readAll ();
 	qDebug (data);
 	getError (socket->error ());
@@ -102,7 +103,7 @@ void mujserver::StartRead ()
 	case LOGIN:
 	{
 		clients->insert (mujpacket.data,socket);
-		/
+		/*
 	QFile soubor ("hesla.txt");
 	soubor.open (QIODevice::ReadOnly);
 	QTextStream stream (&soubor);
@@ -152,6 +153,7 @@ void mujserver::StartRead ()
 	break;
 		}
 	}
+}
 }
 void mujserver::start (int port)
 {

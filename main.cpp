@@ -1,7 +1,7 @@
 #include "header.h"
 #include "gui.h"
 #include "mujserver.h"
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
  int main(int argv, char **args)
          {
               QApplication app(argv, args);

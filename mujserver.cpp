@@ -119,21 +119,18 @@ QByteArray mujserver::DataFromPacket (packet p)
 }
 void mujserver::StartRead ()
 {
-	QTcpSocket * socket=new QTcpSocket (docasnysocket);
 	qDebug ("ctu data");
-	char dat2 [1024];
-	int p=docasnysocket->read (dat2,docasnysocket->bytesAvailable ());
-	qDebug (QByteArray::number (p));
-	qDebug (dat2);
-	getError (socket->error ());
+	QByteArray  data= QByteArray ();
+	data=docasnysocket->readAll ();
+	getError (docasnysocket->error ());
 	packet mujpacket;
 	PacketFromData (mujpacket,&data);
-	clients->insert (mujpacket.receiver,socket);
+	clients->insert (mujpacket.receiver,docasnysocket);
 	switch (mujpacket.flag)
 	{
 	case LOGIN:
 	{
-		clients->insert (mujpacket.data,socket);
+		clients->insert (mujpacket.data,docasnysocket);
 		/*
 	QFile soubor ("hesla.txt");
 	soubor.open (QIODevice::ReadOnly);

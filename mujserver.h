@@ -42,6 +42,7 @@ class mujserver:public QTcpServer
 	public slots:
 		void AcceptConnection ();
 		void StartRead ();
+		void tiskniStav (QAbstractSocket::SocketState);
 };
 
 #endif SERVER

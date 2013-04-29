@@ -7,16 +7,45 @@ struct mujserver::packet
 	QString receiver;
 	int options;
 };
+void mujserver::tiskniStav (QAbstractSocket::SocketState stat)
+{
+	switch (stat)
+	{
+	case QAbstractSocket::UnconnectedState:
+		qDebug ("The socket is not connected.");
+		break;
+	case QAbstractSocket::HostLookupState:
+		qDebug ("The socket is performing a host name lookup.");
+		break;
+	case QAbstractSocket::ConnectingState:
+		qDebug ("The socket has started establishing a connection.");
+		break;
+	case QAbstractSocket::ConnectedState:
+		qDebug ("A connection is established.");
+		break;
+	case QAbstractSocket::BoundState:
+		qDebug ("The socket is bound to an address and port (for servers).");
+		break;
+	case QAbstractSocket::ClosingState:
+		qDebug ("The socket is about to close (data may still be waiting to be written).");
+		break;
+	case QAbstractSocket::ListeningState:
+		qDebug ("For internal use only.");
+		break;
+	}
+}
 mujserver::mujserver ()
 {
 	clients=new QMap <QString ,QTcpSocket*>;
 	data=QByteArray ();
 	addressForListen =QHostAddress ();
+	qRegisterMetaType<QAbstractSocket::SocketState>("SocketState");
 }
 void mujserver::AcceptConnection ()
 {
 	docasnysocket=nextPendingConnection ();
 	connect (docasnysocket,SIGNAL (readyRead ()),this,SLOT (StartRead ()));
+	connect (docasnysocket,SIGNAL (stateChanged(QAbstractSocket::SocketState)),SLOT (tiskniStav (QAbstractSocket::SocketState)));
 }
 void mujserver::PacketFromData (packet & p,QByteArray * data)
 {
@@ -92,8 +121,10 @@ void mujserver::StartRead ()
 {
 	QTcpSocket * socket=new QTcpSocket (docasnysocket);
 	qDebug ("ctu data");
-	data=socket->readAll ();
-	qDebug (data);
+	char dat2 [1024];
+	int p=docasnysocket->read (dat2,docasnysocket->bytesAvailable ());
+	qDebug (QByteArray::number (p));
+	qDebug (dat2);
 	getError (socket->error ());
 	packet mujpacket;
 	PacketFromData (mujpacket,&data);

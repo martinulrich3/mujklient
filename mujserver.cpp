@@ -49,7 +49,7 @@ void mujserver::AcceptConnection ()
 }
 void mujserver::PacketFromData (packet & p,QByteArray * data)
 {
-	QVector <int> * poziceLomeno=new QVector <int> (10);
+	QVector <int> * poziceLomeno=new QVector <int> (0);
 	int index=0;
 	int pocatek=0;
 	int flag=0;
@@ -81,24 +81,24 @@ void mujserver::PacketFromData (packet & p,QByteArray * data)
 			pocatek=lomeno+2;
 			break;
 			case 1:
-			dataarray.append (data->mid (pocatek,lomeno));
+			dataarray.append (data->mid (pocatek,lomeno-pocatek));
+		
 			p.data.append (dataarray);
 			pocatek=lomeno+2;
 				break;
 			case 2:
-			receiver.append (data->mid (pocatek,lomeno));
+			receiver.append (data->mid (pocatek,lomeno-pocatek));
 			p.receiver.append (receiver);
 			pocatek=lomeno+2;
 			break;
 			case 3:
-			sender.append (data->mid (pocatek,lomeno));
+			sender.append (data->mid (pocatek,lomeno-pocatek));
 			p.sender.append (sender);
 			pocatek=lomeno+2;
-			break;
-			case 4:
-				optionsarray.append (data->at (data->size ()-1));
+			optionsarray.append (data->at (data->size ()-1));
 				p.options=optionsarray.toInt ();
 				break;
+			break;
 		}
 	}
 }
@@ -113,7 +113,7 @@ QByteArray mujserver::DataFromPacket (packet p)
 	data.append ("//");
 	data.append (p.sender.toLatin1 ());
 	data.append ("//");
-	data.append (p.options);
+	data.append (QByteArray::number (p.options));
 	data.append ('\0');
 	return data;
 }
@@ -122,6 +122,7 @@ void mujserver::StartRead ()
 	qDebug ("ctu data");
 	QByteArray  data= QByteArray ();
 	data=docasnysocket->readAll ();
+	qDebug (data);
 	getError (docasnysocket->error ());
 	packet mujpacket;
 	PacketFromData (mujpacket,&data);
@@ -130,6 +131,12 @@ void mujserver::StartRead ()
 	{
 	case LOGIN:
 	{
+		/*qDebug (QByteArray::number (mujpacket.flag));
+		qDebug (mujpacket.data);
+		qDebug (QByteArray (mujpacket.receiver.toLatin1 ()));
+		qDebug (mujpacket.sender.toLatin1 ());
+		qDebug (QByteArray::number (mujpacket.options));
+		*/
 		clients->insert (mujpacket.data,docasnysocket);
 		/*
 	QFile soubor ("hesla.txt");
@@ -210,6 +217,7 @@ void mujserver::getError (QString chyba)
 {
 QMessageBox * boxik=new QMessageBox ();
 boxik->setText (chyba);
+if (chyba.compare (QString (""))!=0)
 boxik->exec ();
 }
 void mujserver::getError (int error)
@@ -266,5 +274,6 @@ void mujserver::getError (int error)
 		chybka->setText ("neznama chyba se socketem");
 		break;
 	}
+	if (error!=-1)
 	chybka->exec ();
 }
